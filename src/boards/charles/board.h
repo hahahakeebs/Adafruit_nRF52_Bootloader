@@ -32,7 +32,7 @@
 /*------------------------------------------------------------------*/
 /* LED
  *------------------------------------------------------------------*/
-#define LEDS_NUMBER       2
+#define LEDS_NUMBER       1
 #define LED_PRIMARY_PIN   _PINNUM(0, 16) // bloo
 #define LED_STATE_ON      1
 

@@ -250,6 +250,9 @@ IPATH += \
   $(SDK11_PATH)/ble/ble_services/ble_dfu \
   $(SDK11_PATH)/ble/ble_services/ble_dis
 
+# SDK11 device headers (nrf.h lives here)
+IPATH += $(SDK11_PATH)/device
+
 # later sdk with updated drivers
 IPATH += \
   $(SDK_PATH)/libraries/timer \
@@ -328,8 +331,15 @@ CFLAGS += -DUF2_VERSION_BASE='"$(GIT_VERSION)"'
 CFLAGS += -DUF2_VERSION='"$(GIT_VERSION) $(GIT_SUBMODULE_VERSIONS)"'
 CFLAGS += -DBLEDIS_FW_VERSION='"$(GIT_VERSION) $(SD_NAME) $(SD_VERSION)"'
 
-_VER = $(subst ., ,$(word 1, $(subst -, ,$(GIT_VERSION))))
-CFLAGS += -DMK_BOOTLOADER_VERSION='($(word 1,$(_VER)) << 16) + ($(word 2,$(_VER)) << 8) + $(word 3,$(_VER))'
+# Parse version from git tag (e.g., "1.2.3" or "1.2.3-something")
+# If no version tag, defaults to 0.0.0
+_VER_FULL = $(word 1, $(subst -, ,$(GIT_VERSION)))
+_VER_HAS_DOT = $(findstring .,$(_VER_FULL))
+_VER = $(if $(_VER_HAS_DOT),$(subst ., ,$(_VER_FULL)),0 0 0)
+_VER_MAJOR = $(word 1,$(_VER))
+_VER_MINOR = $(word 2,$(_VER))
+_VER_PATCH = $(word 3,$(_VER))
+CFLAGS += -DMK_BOOTLOADER_VERSION='(($(_VER_MAJOR)) << 16) + (($(_VER_MINOR)) << 8) + ($(_VER_PATCH))'
 
 # Debug option use RTT for printf
 ifeq ($(DEBUG), 1)
